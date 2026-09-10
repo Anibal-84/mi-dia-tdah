@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <link rel="manifest" href="manifest.json">
-<title>Mi Día TDAH 3.2 · BARDO</title>
+<title>Mi Día 3.3 · BARDO</title>
 
 <style>
 :root{
@@ -314,7 +314,7 @@ input:focus,select:focus{
 <header>
   <div class="header-inner">
     <div class="brand">
-      <h1>🧠 Mi Día <span>TDAH</span></h1>
+      <h1>🧠 Mi Día</h1>
       <div class="brand-sub">BARDO · CERVEZA ARTESANAL · BUENAS IDEAS TAMBIÉN FERMENTAN</div>
     </div>
     <div class="bardo">
@@ -332,7 +332,7 @@ input:focus,select:focus{
       <button onclick="tab('week',this)">📊 Semana</button>
       <button onclick="tab('tasks',this)">📝 Tareas</button>
     </nav>
-    <div class="today-date" id="headDate"></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end"><button class="secondary small" onclick="enableNotifications()">🔔 Activar avisos</button><div class="today-date" id="headDate"></div></div>
   </div>
 
   <section id="home" class="page on">
@@ -699,6 +699,29 @@ function start(){
 function reset(){
   clearInterval(intv);intv=null;secs=1200;showTime();
 }
+
+async function enableNotifications(){
+  if(!('Notification' in window)){ alert('Este navegador no permite notificaciones.'); return; }
+  if(Notification.permission==='granted'){ alert('🔔 Los avisos ya están activados.'); return; }
+  const permission=await Notification.requestPermission();
+  if(permission==='granted'){ alert('✅ Avisos activados. La app puede avisarte mientras esté abierta.'); checkReminders(); }
+  else alert('Los avisos no fueron habilitados.');
+}
+
+const notified={};
+function checkReminders(){
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  const now=new Date(), currentDate=iso(now), currentMinutes=now.getHours()*60+now.getMinutes();
+  tasks.forEach(t=>{
+    if(t.done || !t.date || t.date!==currentDate || !t.time || !t.rem) return;
+    const [h,m]=t.time.split(':').map(Number), taskMinutes=h*60+m, key=t.id+'-'+currentDate;
+    if(!notified[key] && currentMinutes>=taskMinutes-t.rem && currentMinutes<taskMinutes-t.rem+2){
+      new Notification('Mi Día · Recordatorio',{body:'⏰ '+t.text+' · '+t.time}); notified[key]=true;
+    }
+  });
+}
+setInterval(checkReminders,60000);
+checkReminders();
 
 render();
 showTime();
