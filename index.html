@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <link rel="manifest" href="manifest.json">
-<title>Mi Día 4.1 · BARDO</title>
+<title>Mi Día 4.3 · BARDO</title>
 <style>
 :root{--bg:#f7f3ea;--card:#fff;--text:#182033;--muted:#6b7280;--line:#e5e1d9;--gold:#c99616;--gold2:#e1ad25;--soft:#fbf7ec;--red:#e51e35;--yellow:#ffbd18;--green:#2fb455}
 *{box-sizing:border-box}html{color-scheme:light}
@@ -15,7 +15,7 @@ header{background:#fffdf8;border-bottom:1px solid #e8dfca;padding:14px 30px 12px
 main{max-width:1180px;margin:auto;padding:18px 30px 40px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}nav{display:flex;gap:9px;overflow:auto}button{font:inherit;border:0;border-radius:11px;padding:10px 14px;font-weight:750;cursor:pointer}nav button{background:#fff;color:#20242d;border:1px solid #dedbd3;box-shadow:0 3px 10px #00000008;white-space:nowrap}nav button.on,.primary{background:linear-gradient(#dca923,#c99312);color:#fff;border-color:#c28c10}.date{font-weight:650;color:#403d37;white-space:nowrap}
 .page{display:none}.page.on{display:block}.grid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(300px,.95fr);gap:22px}.card{background:#fffffff7;border:1px solid #e4e1da;border-radius:18px;padding:18px;margin-bottom:18px;box-shadow:0 8px 24px #251f140f}.title{font-size:21px;font-weight:800;display:flex;align-items:center;gap:9px;padding-bottom:12px;border-bottom:1px solid #ece9e2;margin-bottom:5px}
 .task{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:13px 2px;border-bottom:1px solid #ece9e2}.task:last-child{border-bottom:0}.check{width:22px!important;height:22px;accent-color:var(--gold)}.task b{font-size:16px}.done{text-decoration:line-through;opacity:.45}.meta{font-size:13px;color:#777d86;margin-top:5px}.actions{display:flex;gap:6px}.secondary{background:#fff;color:#42464e;border:1px solid #ddd9d0}.danger{background:#fff;color:#d7192e;border:1px solid #f0d7db}.small{padding:7px 9px;font-size:12px}.dot{display:inline-block;width:13px;height:13px;border-radius:50%;margin-right:8px;vertical-align:-1px}.p1{background:var(--red)}.p2{background:var(--yellow)}.p3{background:var(--green)}
-.add{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:9px;margin-top:13px;align-items:center}.add input:first-child{grid-column:span 2}.add button{min-width:0}input,select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d9d7d1;border-radius:11px;background:#fff;color:#20242d;font:inherit}input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px #c996161f}.muted{color:var(--muted);font-size:13px}
+.add{display:grid;grid-template-columns:minmax(0,2fr) minmax(150px,1fr);gap:10px;margin-top:13px;align-items:center}.add input:first-child{grid-column:1/-1}.add button{grid-column:1/-1;min-height:46px;font-size:16px;font-weight:800}.add button{min-width:0}input,select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d9d7d1;border-radius:11px;background:#fff;color:#20242d;font:inherit}input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px #c996161f}.muted{color:var(--muted);font-size:13px}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#faf7f0;border:1px solid #ebe5d8;border-radius:15px;padding:13px;text-align:center}.stat b{display:block;font-size:25px;color:#c58d14}.quote{margin-top:10px;background:var(--soft);border:1px solid #eee4cf;color:#66562e;border-radius:13px;padding:11px 14px;text-align:center}
 .filters{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0}.filter{background:#fff;border:1px solid #ddd9d0;color:#444;padding:8px 11px;border-radius:10px}.filter.on{background:#f4e5bd;border-color:#d2a22c;color:#76550b}.count{font-size:12px;color:#777;margin-left:5px}
 .time{text-align:center;font-size:64px;font-weight:850;color:var(--gold);letter-spacing:-2px;margin:8px 0}.timer{text-align:center}.timer-actions{display:flex;justify-content:center;gap:8px}
@@ -50,7 +50,7 @@ main{max-width:1180px;margin:auto;padding:18px 30px 40px}.top{display:flex;justi
 <select id="pri"><option value="1">🔴 Alta</option><option value="2">🟡 Importante</option><option value="3">🟢 Si hay tiempo</option></select>
 <input id="dt" type="date"><input id="tm" type="time" value="08:00">
 <select id="rem"><option value="0">🔕 Sin aviso</option><option value="5">🔔 5 min antes</option><option value="15">🔔 15 min antes</option><option value="30">🔔 30 min antes</option><option value="60">🔔 1 hora antes</option></select>
-<button class="primary" onclick="add()">Agregar</button>
+<button id="addBtn" type="button" class="primary">Agregar</button>
 </div><p class="muted">Podés cambiar fecha, hora y recordatorio desde “Editar” o arrastrando la tarea en el calendario.</p></div>
 
 <div class="card timer"><div class="title" style="justify-content:center;border:0">⏱️ Modo enfoque</div><div class="time" id="clock">20:00</div><div class="timer-actions"><button class="primary" onclick="start()">▶️ Empezar</button><button class="secondary" onclick="reset()">↺</button></div><p class="muted">Una sola tarea · 20 minutos · 5 de descanso</p><div class="quote">🌱 “Disciplina hoy, resultados mañana”</div></div>
@@ -100,7 +100,7 @@ function add(){
   tasks.push(task);
   try{localStorage.setItem(KEY,JSON.stringify(tasks));}catch(e){tasks.pop();alert('No se pudo guardar la tarea en este navegador.');return false}
   input.value=""; $('tm').value="08:00"; $('rem').value="0"; selected=task.date; view=new Date(task.date+'T00:00:00');
-  try{render()}catch(e){console.error(e)}
+  try{render()}catch(e){console.error(e);alert('La tarea se guardó, pero hubo un error al actualizar la pantalla. Recargá la página.')}
   return false;
 }
 
