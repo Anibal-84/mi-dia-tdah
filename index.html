@@ -15,13 +15,14 @@ header{background:#fffdf8;border-bottom:1px solid #e8dfca;padding:14px 30px 12px
 main{max-width:1180px;margin:auto;padding:18px 30px 40px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}nav{display:flex;gap:9px;overflow:auto}button{font:inherit;border:0;border-radius:11px;padding:10px 14px;font-weight:750;cursor:pointer}nav button{background:#fff;color:#20242d;border:1px solid #dedbd3;box-shadow:0 3px 10px #00000008;white-space:nowrap}nav button.on,.primary{background:linear-gradient(#dca923,#c99312);color:#fff;border-color:#c28c10}.date{font-weight:650;color:#403d37;white-space:nowrap}
 .page{display:none}.page.on{display:block}.grid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(300px,.95fr);gap:22px}.card{background:#fffffff7;border:1px solid #e4e1da;border-radius:18px;padding:18px;margin-bottom:18px;box-shadow:0 8px 24px #251f140f}.title{font-size:21px;font-weight:800;display:flex;align-items:center;gap:9px;padding-bottom:12px;border-bottom:1px solid #ece9e2;margin-bottom:5px}
 .task{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:13px 2px;border-bottom:1px solid #ece9e2}.task:last-child{border-bottom:0}.check{width:22px!important;height:22px;accent-color:var(--gold)}.task b{font-size:16px}.done{text-decoration:line-through;opacity:.45}.meta{font-size:13px;color:#777d86;margin-top:5px}.actions{display:flex;gap:6px}.secondary{background:#fff;color:#42464e;border:1px solid #ddd9d0}.danger{background:#fff;color:#d7192e;border:1px solid #f0d7db}.small{padding:7px 9px;font-size:12px}.dot{display:inline-block;width:13px;height:13px;border-radius:50%;margin-right:8px;vertical-align:-1px}.p1{background:var(--red)}.p2{background:var(--yellow)}.p3{background:var(--green)}
-.add{display:grid;grid-template-columns:minmax(180px,1fr) 130px 135px 110px 135px auto;gap:9px;margin-top:13px}input,select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d9d7d1;border-radius:11px;background:#fff;color:#20242d;font:inherit}input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px #c996161f}.muted{color:var(--muted);font-size:13px}
+.add{display:grid;grid-template-columns:minmax(160px,1fr) minmax(110px,130px) minmax(120px,135px) minmax(100px,110px) minmax(120px,135px) minmax(90px,110px);gap:9px;margin-top:13px;align-items:center}.add button{min-width:0}input,select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d9d7d1;border-radius:11px;background:#fff;color:#20242d;font:inherit}input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px #c996161f}.muted{color:var(--muted);font-size:13px}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#faf7f0;border:1px solid #ebe5d8;border-radius:15px;padding:13px;text-align:center}.stat b{display:block;font-size:25px;color:#c58d14}.quote{margin-top:10px;background:var(--soft);border:1px solid #eee4cf;color:#66562e;border-radius:13px;padding:11px 14px;text-align:center}
 .filters{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0}.filter{background:#fff;border:1px solid #ddd9d0;color:#444;padding:8px 11px;border-radius:10px}.filter.on{background:#f4e5bd;border-color:#d2a22c;color:#76550b}.count{font-size:12px;color:#777;margin-left:5px}
 .time{text-align:center;font-size:64px;font-weight:850;color:var(--gold);letter-spacing:-2px;margin:8px 0}.timer{text-align:center}.timer-actions{display:flex;justify-content:center;gap:8px}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.dow{text-align:center;color:#747a83;font-size:12px;font-weight:750;padding:7px}.cell{min-height:94px;background:#fff;border:1px solid #e6e2da;border-radius:10px;padding:7px;cursor:pointer}.cell.sel{border:2px solid var(--gold)}.cell.today{background:#fbf5e7}.mutedday{opacity:.4}.num{font-size:12px;font-weight:800}.calitem{display:block;margin-top:5px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.drop{outline:3px dashed #d1a01b}
 .weekgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.day{background:#fff;border:1px solid #e5e1d9;border-radius:13px;padding:10px;min-height:105px}.bar{height:8px;background:#e9e4da;border-radius:8px;overflow:hidden;margin:9px 0}.bar i{display:block;height:100%;background:var(--gold)}
 .empty{padding:18px 5px;color:#7a7f87}.modal{position:fixed;inset:0;background:#0006;display:none;align-items:flex-end;z-index:30}.modal.open{display:flex}.sheet{width:100%;background:#fff;border-radius:22px 22px 0 0;padding:20px;box-shadow:0 -12px 35px #0003}.form{display:grid;gap:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:1100px){.grid{grid-template-columns:1fr}.add{grid-template-columns:1fr 1fr}.add input:first-child{grid-column:1/-1}.add button{grid-column:1/-1}}
 @media(max-width:850px){header{padding:13px 16px}.bardo{display:none}main{padding:13px 14px 30px}.top{flex-direction:column;align-items:flex-start}.date{font-size:13px}.grid{grid-template-columns:1fr}.add{grid-template-columns:1fr 1fr}.add input:first-child{grid-column:1/-1}.add button{grid-column:1/-1}.weekgrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.brand h1{font-size:27px}.sub{font-size:9px;letter-spacing:2px}nav{width:100%}.card{padding:14px}.task{grid-template-columns:27px 1fr}.actions{grid-column:2}.cal{gap:3px}.cell{min-height:67px;padding:5px}.time{font-size:54px}.add{grid-template-columns:1fr 1fr}}
 </style>
@@ -92,32 +93,23 @@ function fmt(s){return new Date(s+'T00:00:00').toLocaleDateString('es-AR',{day:'
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(tasks));return true}catch(e){console.error(e);alert('No se pudo guardar. Revisá el almacenamiento de Safari.');return false}}
 function add(){
-  try{
-    const input=$('txt');
-    if(!input){alert('No encuentro el campo de tarea.');return}
-    const text=input.value.trim();
-    if(!text){alert('Escribí primero qué tenés que hacer.');input.focus();return}
-    const task={id:Date.now()+Math.floor(Math.random()*1000),text:text,p:Number($('pri').value)||1,date:$('dt').value||today(),time:$('tm').value||'',rem:Number($('rem').value)||0,done:false,created:today(),res:0};
-    tasks.push(task);
-    localStorage.setItem(KEY,JSON.stringify(tasks));
-    input.value='';
-    $('tm').value='08:00';
-    $('rem').value='0';
-    selected=task.date;
-    view=new Date(task.date+'T00:00:00');
-    render();
-    alert('✅ Tarea agregada correctamente.');
-  }catch(e){
-    console.error('Error al agregar tarea:',e);
-    alert('No se pudo agregar la tarea. Error: '+e.message);
-  }
+  const input=$('txt');
+  const text=input ? input.value.trim() : "";
+  if(!text){alert('Escribí primero qué tenés que hacer.'); if(input) input.focus(); return false}
+  const task={id:Date.now(),text:text,p:Number($('pri').value)||1,date:$('dt').value||today(),time:$('tm').value||"",rem:Number($('rem').value)||0,done:false,created:today(),res:0};
+  tasks.push(task);
+  try{localStorage.setItem(KEY,JSON.stringify(tasks));}catch(e){tasks.pop();alert('No se pudo guardar la tarea en este navegador.');return false}
+  input.value=""; $('tm').value="08:00"; $('rem').value="0"; selected=task.date; view=new Date(task.date+'T00:00:00');
+  try{render()}catch(e){console.error(e)}
+  return false;
 }
+
 function toggle(id){const t=tasks.find(x=>x.id==id);if(t){t.done=!t.done;if(persist())render()}}
 function del(id){if(confirm('¿Eliminar tarea?')){const old=tasks;tasks=tasks.filter(x=>x.id!=id);if(!persist())tasks=old;else render()}}
 function edit(id){const t=tasks.find(x=>x.id==id);if(!t)return;editId=id;$('etxt').value=t.text;$('epri').value=t.p;$('edt').value=t.date;$('etime').value=t.time||'';$('erem').value=t.rem||0;$('modal').classList.add('open')}
 function closeEdit(){$('modal').classList.remove('open');editId=null}
 function saveEdit(){const t=tasks.find(x=>x.id==editId);if(!t)return;const old={...t};t.text=$('etxt').value.trim()||t.text;t.p=+$('epri').value;t.date=$('edt').value||today();t.time=$('etime').value||'';t.rem=+$('erem').value||0;if(t.date!==old.date)t.res=(t.res||0)+1;if(persist()){closeEdit();selected=t.date;view=new Date(t.date+'T00:00:00');render()}else Object.assign(t,old)}
-function item(t){const overdue=!t.done&&t.date<today();return `<div class="task" draggable="true" ondragstart="event.dataTransfer.setData('text/plain','${t.id}')"><input class="check" type="checkbox" ${t.done?'checked':''} onchange="toggle(${t.id})"><div class="${t.done?'done':''}"><b><span class="dot p${t.p}"></span>${esc(t.text)}</b><div class="meta">${overdue?'⚠️ Vencida · ':''}📅 ${fmt(t.date)}${t.time?' · ⏰ '+t.time:''}${t.rem?' · 🔔 '+t.rem+' min':''}</div></div><div class="actions"><button class="secondary small" onclick="edit(${t.id})">✏️</button><button class="danger small" onclick="del(${t.id})">🗑️</button></div></div>`}
+function item(t){const overdue=!t.done&&t.date<today();return `<div class="task" draggable="true" data-task-id="${t.id}"><input class="check" type="checkbox" ${t.done?'checked':''} onchange="toggle(${t.id})"><div class="${t.done?'done':''}"><b><span class="dot p${t.p}"></span>${esc(t.text)}</b><div class="meta">${overdue?'⚠️ Vencida · ':''}📅 ${fmt(t.date)}${t.time?' · ⏰ '+t.time:''}${t.rem?' · 🔔 '+t.rem+' min':''}</div></div><div class="actions"><button class="secondary small" onclick="edit(${t.id})">✏️</button><button class="danger small" onclick="del(${t.id})">🗑️</button></div></div>`}
 function render(){
   const d=today(),todayTasks=tasks.filter(t=>!t.done&&t.date===d).sort(sortTasks);
   $('todayList').innerHTML=todayTasks.slice(0,3).map(item).join('')||'<div class="empty">No tenés prioridades pendientes para hoy. 🎉</div>';
@@ -152,6 +144,7 @@ function showTime(){$('clock').textContent=pad(Math.floor(secs/60))+':'+pad(secs
 try{ $('dt').value=today(); }catch(e){}
 try{render();}catch(e){console.error('Error inicial de Mi Día:',e);}
 try{showTime();}catch(e){}
+try{document.addEventListener('dragstart',e=>{const el=e.target.closest('[data-task-id]');if(el&&e.dataTransfer)e.dataTransfer.setData('text/plain',el.dataset.taskId)})}catch(e){}
 </script>
 </body>
 </html>
