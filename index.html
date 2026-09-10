@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <link rel="manifest" href="manifest.json">
-<title>Mi Día 3.3 · BARDO</title>
+<title>Mi Día 3.5 · BARDO</title>
 
 <style>
 :root{
@@ -362,7 +362,7 @@ input:focus,select:focus{
               <option value="30">🔔 30 min antes</option>
               <option value="60">🔔 1 hora antes</option>
             </select>
-            <button class="primary" onclick="add()">Agregar</button>
+            <button class="primary" id="addBtn" onclick="add()">Agregar</button>
           </div>
           <p class="muted">Podés cambiar fecha y hora después desde “Editar” o arrastrando la tarea en el calendario.</p>
         </div>
@@ -500,53 +500,58 @@ function esc(s){
   return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function save(){
-  localStorage.setItem(KEY,JSON.stringify(tasks));
-  render();
+  try{
+    localStorage.setItem(KEY,JSON.stringify(tasks));
+    render();
+    return true;
+  }catch(err){
+    console.error('Mi Día - error al guardar:',err);
+    alert('No se pudo guardar en este iPhone. Verificá que Safari permita el almacenamiento de la página.');
+    return false;
+  }
 }
 
 $('headDate').textContent=new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
 $('dt').value=today();
 
 function add(){
-  try{
-    const text=$('txt').value.trim();
-    const date=$('dt').value||today();
-    const time=$('tm').value||'';
-    const p=+$('pri').value;
-    const rem=+$('rem').value||0;
+  const text=$('txt').value.trim();
+  const date=$('dt').value||today();
+  const time=$('tm').value||'';
+  const p=+$('pri').value;
+  const rem=+$('rem').value||0;
 
-    if(!text){
-      alert('Escribí primero qué tenés que hacer.');
-      $('txt').focus();
-      return;
-    }
+  if(!text){
+    alert('Escribí primero qué tenés que hacer.');
+    $('txt').focus();
+    return;
+  }
 
-    const task={
-      id:Date.now(),
-      text:text,
-      p:p,
-      date:date,
-      time:time,
-      rem:rem,
-      done:false,
-      created:today(),
-      res:0
-    };
+  const task={
+    id:Date.now(),
+    text:text,
+    p:p,
+    date:date,
+    time:time,
+    rem:rem,
+    done:false,
+    created:today(),
+    res:0
+  };
 
-    tasks.push(task);
-    save();
+  tasks.push(task);
 
+  const ok=save();
+
+  if(ok){
     $('txt').value='';
     $('tm').value='08:00';
     $('rem').value='0';
-
     selected=task.date;
     view=new Date(task.date+'T00:00:00');
     render();
-
-  }catch(err){
-    console.error(err);
-    alert('No pude guardar la tarea. Probemos nuevamente.');
+  }else{
+    tasks.pop();
   }
 }
 
