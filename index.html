@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f7f3ea">
 <link rel="manifest" href="manifest.json">
-<title>Mi Día 4.0 · BARDO</title>
+<title>Mi Día 4.1 · BARDO</title>
 <style>
 :root{--bg:#f7f3ea;--card:#fff;--text:#182033;--muted:#6b7280;--line:#e5e1d9;--gold:#c99616;--gold2:#e1ad25;--soft:#fbf7ec;--red:#e51e35;--yellow:#ffbd18;--green:#2fb455}
 *{box-sizing:border-box}html{color-scheme:light}
@@ -92,14 +92,25 @@ function fmt(s){return new Date(s+'T00:00:00').toLocaleDateString('es-AR',{day:'
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(tasks));return true}catch(e){console.error(e);alert('No se pudo guardar. Revisá el almacenamiento de Safari.');return false}}
 function add(){
-  const text=$('txt').value.trim();
-  if(!text){alert('Escribí primero qué tenés que hacer.');return}
-  const task={id:Date.now(),text,p:+$('pri').value,date:$('dt').value||today(),time:$('tm').value||'',rem:+$('rem').value||0,done:false,created:today(),res:0};
-  tasks.push(task);
-  if(persist()){
-    $('txt').value='';$('tm').value='08:00';$('rem').value='0';
-    selected=task.date;view=new Date(task.date+'T00:00:00');render();
-  }else tasks.pop();
+  try{
+    const input=$('txt');
+    if(!input){alert('No encuentro el campo de tarea.');return}
+    const text=input.value.trim();
+    if(!text){alert('Escribí primero qué tenés que hacer.');input.focus();return}
+    const task={id:Date.now()+Math.floor(Math.random()*1000),text:text,p:Number($('pri').value)||1,date:$('dt').value||today(),time:$('tm').value||'',rem:Number($('rem').value)||0,done:false,created:today(),res:0};
+    tasks.push(task);
+    localStorage.setItem(KEY,JSON.stringify(tasks));
+    input.value='';
+    $('tm').value='08:00';
+    $('rem').value='0';
+    selected=task.date;
+    view=new Date(task.date+'T00:00:00');
+    render();
+    alert('✅ Tarea agregada correctamente.');
+  }catch(e){
+    console.error('Error al agregar tarea:',e);
+    alert('No se pudo agregar la tarea. Error: '+e.message);
+  }
 }
 function toggle(id){const t=tasks.find(x=>x.id==id);if(t){t.done=!t.done;if(persist())render()}}
 function del(id){if(confirm('¿Eliminar tarea?')){const old=tasks;tasks=tasks.filter(x=>x.id!=id);if(!persist())tasks=old;else render()}}
@@ -138,7 +149,9 @@ function startWeek(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate(
 function renderWeek(){const s=startWeek(),ds=[];for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);ds.push(iso(d))}const tw=tasks.filter(t=>ds.includes(t.date));$('wc').textContent=tasks.filter(t=>t.created&&ds.includes(t.created)).length;$('wd').textContent=tw.filter(t=>t.done).length;$('wp').textContent=tw.filter(t=>!t.done).length;$('wr').textContent=tw.reduce((n,t)=>n+(t.res||0),0);$('weekLabel').textContent='Del '+fmt(ds[0])+' al '+fmt(ds[6]);$('wg').innerHTML=ds.map(d=>{const a=tw.filter(t=>t.date===d),z=a.filter(t=>t.done).length,p=a.length?z/a.length*100:0;return `<div class="day"><b>${new Date(d+'T00:00:00').toLocaleDateString('es-AR',{weekday:'short',day:'2-digit'})}</b><div class="bar"><i style="width:${p}%"></i></div><small>${z}/${a.length} hechas</small></div>`}).join('');$('wdetail').innerHTML=tw.map(item).join('')||'<div class="empty">No hay tareas esta semana.</div>'}
 function tab(id,b){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));$(id).classList.add('on');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');window.scrollTo(0,0)}
 function showTime(){$('clock').textContent=pad(Math.floor(secs/60))+':'+pad(secs%60)}function start(){if(intv)return;intv=setInterval(()=>{secs--;showTime();if(secs<=0){clearInterval(intv);intv=null;secs=300;alert('🎉 Bloque terminado. Descansá 5 minutos.');showTime()}},1000)}function reset(){clearInterval(intv);intv=null;secs=1200;showTime()}
-render();showTime();
+try{ $('dt').value=today(); }catch(e){}
+try{render();}catch(e){console.error('Error inicial de Mi Día:',e);}
+try{showTime();}catch(e){}
 </script>
 </body>
 </html>
