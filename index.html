@@ -1,58 +1,1649 @@
-<!doctype html><html lang="es"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#2457e6"><link rel="manifest" href="manifest.json"><title>Mi Día TDAH 2.1</title>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<meta name="theme-color" content="#0d0b09">
+<link rel="manifest" href="manifest.json">
+
+<title>Mi Día TDAH 3.1 · BARDO</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6fb;color:#182033;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{background:#2457e6;color:#fff;padding:calc(20px + env(safe-area-inset-top)) 18px 18px;border-radius:0 0 22px 22px;position:sticky;top:0;z-index:5}header h1{margin:0;font-size:25px}header p{margin:4px 0 0;opacity:.9}
-main{max-width:1000px;margin:auto;padding:12px 16px 35px}nav{display:flex;gap:7px;overflow:auto;padding:12px 0}nav button{white-space:nowrap;border:1px solid #dde2ec;background:white;color:#35415a;padding:9px 12px;border-radius:12px}nav .on{background:#2457e6;color:#fff}
-.page{display:none}.page.on{display:block}.grid{display:grid;grid-template-columns:1.5fr .8fr;gap:14px}.card{background:#fff;border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 4px 18px #0000000b}
-h2{font-size:18px;margin:0 0 12px}.muted{color:#6d7688;font-size:13px}.task{display:grid;grid-template-columns:23px 1fr auto;gap:9px;align-items:center;padding:12px 0;border-bottom:1px solid #edf0f5}.task:last-child{border:0}.task input{width:19px;height:19px}.done{text-decoration:line-through;opacity:.5}.meta{font-size:12px;color:#737d90;margin-top:3px}
-button,input,select{font:inherit}button{border:0;border-radius:11px;padding:10px 13px;background:#2457e6;color:#fff;font-weight:650;cursor:pointer}button.secondary{background:#edf0f6;color:#2e3a50}.small{padding:7px 9px;font-size:12px}
-.add{display:grid;grid-template-columns:1fr 125px 145px auto;gap:8px}input,select{width:100%;padding:11px;border:1px solid #d7ddea;border-radius:11px;background:#fff}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{text-align:center;background:#f7f8fb;border-radius:13px;padding:12px}.stat b{display:block;font-size:23px}
-.monthhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dow{text-align:center;font-size:11px;color:#7a8495;padding:5px}.cell{min-height:92px;background:#f8f9fc;border-radius:10px;padding:7px;cursor:pointer;border:2px solid transparent}.cell.sel{border-color:#2457e6}.cell.today{background:#eef3ff}.cell.mutedday{opacity:.35}.num{font-size:12px;font-weight:700}.dot{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px}.drop{outline:3px dashed #2457e6}
-.weekgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.day{background:#f8f9fc;border-radius:12px;padding:9px;min-height:100px}.bar{height:7px;background:#dfe4ef;border-radius:8px;margin:8px 0;overflow:hidden}.bar i{display:block;height:100%;background:#2457e6}
-.timer{text-align:center}.time{font-size:52px;font-weight:750}.modal{position:fixed;inset:0;background:#0006;display:none;align-items:flex-end;z-index:20}.modal.open{display:flex}.sheet{background:#fff;width:100%;padding:18px;border-radius:22px 22px 0 0}.form{display:grid;gap:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-@media(max-width:720px){.grid{grid-template-columns:1fr}.add{grid-template-columns:1fr 1fr}.add input:first-child{grid-column:1/-1}.cal{gap:3px}.cell{min-height:72px;padding:5px}.weekgrid{grid-template-columns:repeat(2,1fr)}}
-</style></head><body>
-<header><h1>🧠 Mi Día TDAH</h1><p id="headDate"></p></header><main>
-<nav><button class="on" onclick="tab('home',this)">🏠 Hoy</button><button onclick="tab('calendar',this)">📅 Calendario</button><button onclick="tab('week',this)">📊 Semana</button><button onclick="tab('tasks',this)">📝 Tareas</button></nav>
 
-<section id="home" class="page on"><div class="grid"><div>
-<div class="card"><h2>🎯 Mis prioridades de hoy</h2><div id="todayList"></div></div>
-<div class="card"><h2>➕ Nueva tarea</h2><div class="add"><input id="txt" placeholder="¿Qué tengo que hacer?"><select id="pri"><option value="1">🔴 Alta</option><option value="2">🟡 Importante</option><option value="3">🟢 Si hay tiempo</option></select><input id="dt" type="date"><button onclick="add()">Agregar</button></div><p class="muted">La fecha se puede cambiar después arrastrando la tarea en el calendario.</p></div>
-<div class="card timer"><h2>⏱️ Modo enfoque</h2><div class="time" id="clock">20:00</div><button onclick="start()">▶️ Empezar</button> <button class="secondary" onclick="reset()">↺</button><p class="muted">Una sola tarea · 20 minutos · 5 de descanso</p></div>
-</div><div>
-<div class="card"><h2>📌 Resumen</h2><div class="stats"><div class="stat"><b id="ov">0</b>🔴 vencidas</div><div class="stat"><b id="td">0</b>📅 hoy</div><div class="stat"><b id="up">0</b>⏭️ próximas</div><div class="stat"><b id="co">0</b>✅ hechas</div></div></div>
-<div class="card"><h2>⏭️ Próximamente</h2><div id="next"></div></div>
-</div></div></section>
+*{
+  box-sizing:border-box
+}
 
-<section id="calendar" class="page"><div class="card"><div class="monthhead"><button class="secondary" onclick="changeMonth(-1)">‹</button><h2 id="monthTitle"></h2><button class="secondary" onclick="changeMonth(1)">›</button></div><p class="muted">Arrastrá una tarea sobre otro día para reprogramarla.</p><div class="cal" id="cal"></div><hr><h2 id="selectedTitle"></h2><div id="selectedList"></div></div></section>
+html{
+  color-scheme:dark
+}
 
-<section id="week" class="page"><div class="card"><h2>📊 Resumen semanal</h2><p class="muted" id="weekLabel"></p><div class="stats"><div class="stat"><b id="wc">0</b>creadas</div><div class="stat"><b id="wd">0</b>completadas</div><div class="stat"><b id="wp">0</b>pendientes</div><div class="stat"><b id="wr">0</b>reprogramadas</div></div></div><div class="card"><h2>Actividad</h2><div class="weekgrid" id="wg"></div></div><div class="card"><h2>🧾 Tareas de la semana</h2><div id="wdetail"></div></div></section>
-<section id="tasks" class="page"><div class="card"><h2>📝 Todas las tareas</h2><div id="all"></div></div></section>
+body{
+  margin:0;
+  background:#0d0b09;
+  color:#f8f3e8;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background-image:
+    radial-gradient(circle at 82% 35%,rgba(207,128,28,.28),transparent 27%),
+    radial-gradient(circle at 12% 75%,rgba(77,96,30,.22),transparent 25%),
+    linear-gradient(120deg,#080807 0%,#25180e 55%,#0c0b09 100%);
+  background-attachment:fixed;
+}
+
+header{
+  background:linear-gradient(135deg,#17120d,#3b2711);
+  color:#fff;
+  border-bottom:1px solid #eab72e55;
+  padding:calc(20px + env(safe-area-inset-top)) 18px 18px;
+  border-radius:0 0 22px 22px;
+  position:sticky;
+  top:0;
+  z-index:5;
+  box-shadow:0 8px 25px #0008;
+}
+
+header h1{
+  margin:0;
+  font-size:25px;
+  color:#f8f3e8;
+}
+
+header p{
+  margin:5px 0 0;
+  color:#d6cdbd;
+}
+
+main{
+  max-width:1000px;
+  margin:auto;
+  padding:12px 16px 35px;
+}
+
+nav{
+  display:flex;
+  gap:7px;
+  overflow:auto;
+  padding:12px 0;
+}
+
+nav button{
+  white-space:nowrap;
+  border:1px solid #ffffff2b;
+  background:#1a1712;
+  color:#f8f3e8;
+  padding:9px 12px;
+  border-radius:12px;
+}
+
+nav button:hover{
+  background:#29231b;
+}
+
+nav .on{
+  background:#eab52e;
+  color:#17130d;
+  border-color:#eab52e;
+}
+
+.page{
+  display:none;
+}
+
+.page.on{
+  display:block;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1.5fr .8fr;
+  gap:14px;
+}
+
+.card{
+  background:rgba(22,19,15,.92);
+  color:#f8f3e8;
+  border:1px solid #ffffff22;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:0 8px 28px #0008;
+}
+
+h2{
+  font-size:18px;
+  margin:0 0 12px;
+  color:#f8f3e8;
+}
+
+h1,h2,h3,b,strong,label{
+  color:#f8f3e8;
+}
+
+.muted{
+  color:#cfc6b7;
+  font-size:13px;
+}
+
+p{
+  color:#cfc6b7;
+}
+
+.task{
+  display:grid;
+  grid-template-columns:23px 1fr auto;
+  gap:9px;
+  align-items:center;
+  padding:12px 0;
+  border-bottom:1px solid #ffffff18;
+  color:#f8f3e8;
+}
+
+.task:last-child{
+  border:0;
+}
+
+.task input{
+  width:19px;
+  height:19px;
+}
+
+.task b{
+  color:#f8f3e8;
+}
+
+.done{
+  text-decoration:line-through;
+  opacity:.5;
+}
+
+.meta{
+  font-size:12px;
+  color:#cfc6b7;
+  margin-top:3px;
+}
+
+button,
+input,
+select{
+  font:inherit;
+}
+
+button{
+  border:0;
+  border-radius:11px;
+  padding:10px 13px;
+  background:#eab52e;
+  color:#17130d;
+  font-weight:650;
+  cursor:pointer;
+}
+
+button:hover{
+  filter:brightness(1.08);
+}
+
+button.secondary{
+  background:#29231b;
+  color:#f8f3e8;
+  border:1px solid #ffffff22;
+}
+
+.small{
+  padding:7px 9px;
+  font-size:12px;
+}
+
+.add{
+  display:grid;
+  grid-template-columns:1fr 125px 145px auto;
+  gap:8px;
+}
+
+input,
+select{
+  width:100%;
+  padding:11px;
+  border:1px solid #ffffff30;
+  border-radius:11px;
+  background:#0e0d0b;
+  color:#f8f3e8;
+}
+
+input::placeholder{
+  color:#aaa294;
+}
+
+input:focus,
+select:focus{
+  outline:none;
+  border-color:#eab52e;
+  box-shadow:0 0 0 2px #eab52e22;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.stat{
+  text-align:center;
+  background:#242018;
+  color:#f8f3e8;
+  border:1px solid #ffffff18;
+  border-radius:13px;
+  padding:12px;
+}
+
+.stat b{
+  display:block;
+  font-size:23px;
+  color:#f2c34e;
+}
+
+.monthhead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.monthhead h2{
+  color:#f8f3e8;
+}
+
+.cal{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
+}
+
+.dow{
+  text-align:center;
+  font-size:11px;
+  color:#c8bead;
+  padding:5px;
+}
+
+.cell{
+  min-height:92px;
+  background:#1b1813;
+  color:#f8f3e8;
+  border-radius:10px;
+  padding:7px;
+  cursor:pointer;
+  border:2px solid transparent;
+}
+
+.cell:hover{
+  background:#29231b;
+}
+
+.cell.sel{
+  border-color:#eab52e;
+}
+
+.cell.today{
+  background:#3b2c12;
+}
+
+.cell.mutedday{
+  opacity:.35;
+}
+
+.num{
+  font-size:12px;
+  font-weight:700;
+  color:#f8f3e8;
+}
+
+.dot{
+  display:block;
+  font-size:10px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  margin-top:5px;
+  color:#f8f3e8;
+}
+
+.drop{
+  outline:3px dashed #eab52e;
+}
+
+.weekgrid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:7px;
+}
+
+.day{
+  background:#1b1813;
+  color:#f8f3e8;
+  border-radius:12px;
+  padding:9px;
+  min-height:100px;
+  border:1px solid #ffffff15;
+}
+
+.day b{
+  color:#f8f3e8;
+}
+
+.bar{
+  height:7px;
+  background:#403a30;
+  border-radius:8px;
+  margin:8px 0;
+  overflow:hidden;
+}
+
+.bar i{
+  display:block;
+  height:100%;
+  background:#eab52e;
+}
+
+.time{
+  font-size:52px;
+  font-weight:750;
+  color:#f2c34e;
+}
+
+.timer{
+  text-align:center;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:#000b;
+  display:none;
+  align-items:flex-end;
+  z-index:20;
+}
+
+.modal.open{
+  display:flex;
+}
+
+.sheet{
+  background:#16130f;
+  color:#f8f3e8;
+  width:100%;
+  padding:18px;
+  border-radius:22px 22px 0 0;
+  border-top:1px solid #ffffff22;
+  box-shadow:0 -10px 35px #000;
+}
+
+.sheet h2{
+  color:#f8f3e8;
+}
+
+.form{
+  display:grid;
+  gap:10px;
+}
+
+.two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+hr{
+  border:0;
+  border-top:1px solid #ffffff20;
+  margin:18px 0;
+}
+
+@media(max-width:720px){
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .add{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .add input:first-child{
+    grid-column:1/-1;
+  }
+
+  .cal{
+    gap:3px;
+  }
+
+  .cell{
+    min-height:72px;
+    padding:5px;
+  }
+
+  .weekgrid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .task{
+    grid-template-columns:23px 1fr auto;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<h1>
+🧠 Mi Día <span style="color:#f0b52d">TDAH</span>
+</h1>
+
+<div style="
+font-size:11px;
+letter-spacing:3px;
+margin-top:5px;
+color:#e8d6ae
+">
+BARDO · CERVEZA ARTESANAL · BUENAS IDEAS TAMBIÉN FERMENTAN
+</div>
+
+<p id="headDate"></p>
+
+</header>
+
+<main>
+
+<nav>
+
+<button class="on" onclick="tab('home',this)">
+🏠 Hoy
+</button>
+
+<button onclick="tab('calendar',this)">
+📅 Calendario
+</button>
+
+<button onclick="tab('week',this)">
+📊 Semana
+</button>
+
+<button onclick="tab('tasks',this)">
+📝 Tareas
+</button>
+
+</nav>
+
+
+<!-- HOY -->
+
+<section id="home" class="page on">
+
+<div class="grid">
+
+<div>
+
+<div class="card">
+
+<h2>🎯 Mis prioridades de hoy</h2>
+
+<div id="todayList"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>➕ Nueva tarea</h2>
+
+<div class="add">
+
+<input
+id="txt"
+placeholder="¿Qué tengo que hacer?"
+>
+
+<select id="pri">
+
+<option value="1">
+🔴 Alta
+</option>
+
+<option value="2">
+🟡 Importante
+</option>
+
+<option value="3">
+🟢 Si hay tiempo
+</option>
+
+</select>
+
+<input
+id="dt"
+type="date"
+>
+
+<button onclick="add()">
+Agregar
+</button>
+
+</div>
+
+<p class="muted">
+La fecha se puede cambiar después arrastrando la tarea en el calendario.
+</p>
+
+</div>
+
+
+<div class="card timer">
+
+<h2>⏱️ Modo enfoque</h2>
+
+<div class="time" id="clock">
+20:00
+</div>
+
+<button onclick="start()">
+▶️ Empezar
+</button>
+
+<button class="secondary" onclick="reset()">
+↺
+</button>
+
+<p class="muted">
+Una sola tarea · 20 minutos · 5 de descanso
+</p>
+
+</div>
+
+</div>
+
+
+<div>
+
+<div class="card">
+
+<h2>📌 Resumen</h2>
+
+<div class="stats">
+
+<div class="stat">
+<b id="ov">0</b>
+🔴 vencidas
+</div>
+
+<div class="stat">
+<b id="td">0</b>
+📅 hoy
+</div>
+
+<div class="stat">
+<b id="up">0</b>
+⏭️ próximas
+</div>
+
+<div class="stat">
+<b id="co">0</b>
+✅ hechas
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>⏭️ Próximamente</h2>
+
+<div id="next"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- CALENDARIO -->
+
+<section id="calendar" class="page">
+
+<div class="card">
+
+<div class="monthhead">
+
+<button
+class="secondary"
+onclick="changeMonth(-1)"
+>
+‹
+</button>
+
+<h2 id="monthTitle"></h2>
+
+<button
+class="secondary"
+onclick="changeMonth(1)"
+>
+›
+</button>
+
+</div>
+
+<p class="muted">
+Arrastrá una tarea sobre otro día para reprogramarla.
+</p>
+
+<div
+class="cal"
+id="cal"
+></div>
+
+<hr>
+
+<h2 id="selectedTitle"></h2>
+
+<div id="selectedList"></div>
+
+</div>
+
+</section>
+
+
+<!-- SEMANA -->
+
+<section id="week" class="page">
+
+<div class="card">
+
+<h2>📊 Resumen semanal</h2>
+
+<p
+class="muted"
+id="weekLabel"
+></p>
+
+<div class="stats">
+
+<div class="stat">
+<b id="wc">0</b>
+creadas
+</div>
+
+<div class="stat">
+<b id="wd">0</b>
+completadas
+</div>
+
+<div class="stat">
+<b id="wp">0</b>
+pendientes
+</div>
+
+<div class="stat">
+<b id="wr">0</b>
+reprogramadas
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Actividad</h2>
+
+<div
+class="weekgrid"
+id="wg"
+></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>🧾 Tareas de la semana</h2>
+
+<div id="wdetail"></div>
+
+</div>
+
+</section>
+
+
+<!-- TODAS LAS TAREAS -->
+
+<section id="tasks" class="page">
+
+<div class="card">
+
+<h2>📝 Todas las tareas</h2>
+
+<div id="all"></div>
+
+</div>
+
+</section>
+
 </main>
 
-<div class="modal" id="modal"><div class="sheet"><h2>✏️ Editar tarea</h2><div class="form"><input id="etxt"><div class="two"><select id="epri"><option value="1">🔴 Alta</option><option value="2">🟡 Importante</option><option value="3">🟢 Si hay tiempo</option></select><input id="edt" type="date"></div><div class="two"><input id="etime" type="time"><select id="erem"><option value="0">Sin recordatorio</option><option value="15">15 min antes</option><option value="30">30 min antes</option><option value="60">1 hora antes</option></select></div><button onclick="saveEdit()">Guardar cambios</button><button class="secondary" onclick="closeEdit()">Cancelar</button></div></div></div>
+
+<!-- EDITAR TAREA -->
+
+<div
+class="modal"
+id="modal"
+>
+
+<div class="sheet">
+
+<h2>
+✏️ Editar tarea
+</h2>
+
+<div class="form">
+
+<input id="etxt">
+
+<div class="two">
+
+<select id="epri">
+
+<option value="1">
+🔴 Alta
+</option>
+
+<option value="2">
+🟡 Importante
+</option>
+
+<option value="3">
+🟢 Si hay tiempo
+</option>
+
+</select>
+
+<input
+id="edt"
+type="date"
+>
+
+</div>
+
+
+<div class="two">
+
+<input
+id="etime"
+type="time"
+>
+
+<select id="erem">
+
+<option value="0">
+Sin recordatorio
+</option>
+
+<option value="15">
+15 min antes
+</option>
+
+<option value="30">
+30 min antes
+</option>
+
+<option value="60">
+1 hora antes
+</option>
+
+</select>
+
+</div>
+
+
+<button onclick="saveEdit()">
+Guardar cambios
+</button>
+
+<button
+class="secondary"
+onclick="closeEdit()"
+>
+Cancelar
+</button>
+
+</div>
+
+</div>
+
+</div>
+
 
 <script>
-const KEY='miDiaTdah21';let tasks=JSON.parse(localStorage.getItem(KEY)||'[]'), editId=null, view=new Date(), selected=iso(new Date()),secs=1200,intv=null;
-const pad=n=>String(n).padStart(2,'0');function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}function today(){return iso(new Date())}
-headDate.textContent=new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());dt.value=today();
-function save(){localStorage.setItem(KEY,JSON.stringify(tasks));render()}
-function add(){let text=txt.value.trim();if(!text)return;tasks.push({id:Date.now(),text,p:+pri.value,date:dt.value||today(),time:'',rem:0,done:false,created:today(),res:0});txt.value='';save()}
-function toggle(id){let t=tasks.find(x=>x.id==id);t.done=!t.done;save()}function del(id){if(confirm('¿Eliminar tarea?')){tasks=tasks.filter(x=>x.id!=id);save()}}
-function edit(id){let t=tasks.find(x=>x.id==id);editId=id;etxt.value=t.text;epri.value=t.p;edt.value=t.date;etime.value=t.time||'';erem.value=t.rem||0;modal.classList.add('open')}
-function closeEdit(){modal.classList.remove('open');editId=null}
-function saveEdit(){let t=tasks.find(x=>x.id==editId),old=t.date;t.text=etxt.value.trim()||t.text;t.p=+epri.value;t.date=edt.value;t.time=etime.value;t.rem=+erem.value;if(old!==t.date)t.res=(t.res||0)+1;closeEdit();save()}
-function item(t,drag=true){let overdue=!t.done&&t.date<today();return `<div class="task" draggable="${drag}" ondragstart="event.dataTransfer.setData('text/plain','${t.id}')"><input type="checkbox" ${t.done?'checked':''} onchange="toggle(${t.id})"><div class="${t.done?'done':''}"><b>${['','🔴','🟡','🟢'][t.p]} ${esc(t.text)}</b><div class="meta">${overdue?'⚠️ Vencida · ':''}📅 ${fmt(t.date)}${t.time?' · ⏰ '+t.time:''}${t.rem?' · 🔔 '+t.rem+' min':''}</div></div><div><button class="secondary small" onclick="edit(${t.id})">Editar</button></div></div>`}
-function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function fmt(s){return new Date(s+'T00:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'})}
-function render(){let d=today(),tl=tasks.filter(t=>!t.done&&t.date===d).sort((a,b)=>a.p-b.p);todayList.innerHTML=tl.map(item).join('')||'<p class="muted">Nada programado para hoy.</p>';next.innerHTML=tasks.filter(t=>!t.done&&t.date>d).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6).map(item).join('')||'<p class="muted">No hay tareas próximas.</p>';ov.textContent=tasks.filter(t=>!t.done&&t.date<d).length;td.textContent=tasks.filter(t=>!t.done&&t.date===d).length;up.textContent=tasks.filter(t=>!t.done&&t.date>d).length;co.textContent=tasks.filter(t=>t.done).length;renderCal();renderWeek();all.innerHTML=tasks.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(item).join('')||'<p class="muted">No hay tareas.</p>'}
-function renderCal(){let y=view.getFullYear(),m=view.getMonth();monthTitle.textContent=new Intl.DateTimeFormat('es-AR',{month:'long',year:'numeric'}).format(view);let first=new Date(y,m,1),start=(first.getDay()+6)%7,days=new Date(y,m+1,0).getDate(),prev=new Date(y,m,0).getDate(),h=['L','M','X','J','V','S','D'].map(x=>`<div class="dow">${x}</div>`).join('');for(let i=0;i<start;i++){h+=`<div class="cell mutedday"><span class="num">${prev-start+i+1}</span></div>`}for(let day=1;day<=days;day++){let d=iso(new Date(y,m,day)),arr=tasks.filter(t=>t.date===d),cl=(d===selected?' sel':'')+(d===today()?' today':'');h+=`<div class="cell${cl}" onclick="selectDay('${d}')" ondragover="event.preventDefault();this.classList.add('drop')" ondragleave="this.classList.remove('drop')" ondrop="dropTask(event,'${d}');this.classList.remove('drop')"><span class="num">${day}</span>${arr.slice(0,3).map(t=>`<span class="dot">${t.done?'✅':'•'} ${esc(t.text)}</span>`).join('')}</div>`}cal.innerHTML=h;selectedTitle.textContent=new Date(selected+'T00:00:00').toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});selectedList.innerHTML=tasks.filter(t=>t.date===selected).sort((a,b)=>a.p-b.p).map(item).join('')||'<p class="muted">No hay tareas para esta fecha.</p>'}
-function selectDay(d){selected=d;renderCal()}function changeMonth(n){view.setMonth(view.getMonth()+n);renderCal()}
-function dropTask(e,d){let id=e.dataTransfer.getData('text/plain'),t=tasks.find(x=>x.id==id);if(t&&t.date!==d){t.date=d;t.res=(t.res||0)+1;save();selected=d;view=new Date(d+'T00:00:00');}}
-function startWeek(){let d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d}
-function renderWeek(){let s=startWeek(),ds=[];for(let i=0;i<7;i++){let d=new Date(s);d.setDate(s.getDate()+i);ds.push(iso(d))}let tw=tasks.filter(t=>ds.includes(t.date));wc.textContent=tasks.filter(t=>t.created&&ds.includes(t.created)).length;wd.textContent=tw.filter(t=>t.done).length;wp.textContent=tw.filter(t=>!t.done).length;wr.textContent=tw.reduce((n,t)=>n+(t.res||0),0);weekLabel.textContent='Del '+fmt(ds[0])+' al '+fmt(ds[6]);wg.innerHTML=ds.map(d=>{let a=tw.filter(t=>t.date===d),z=a.filter(t=>t.done).length,p=a.length?z/a.length*100:0;return `<div class="day"><b>${new Date(d+'T00:00:00').toLocaleDateString('es-AR',{weekday:'short',day:'2-digit'})}</b><div class="bar"><i style="width:${p}%"></i></div><small>${z}/${a.length} hechas</small></div>`}).join('');wdetail.innerHTML=tw.map(item).join('')||'<p class="muted">No hay tareas esta semana.</p>'}
-function tab(id,b){document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));document.getElementById(id).classList.add('on');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');window.scrollTo(0,0)}
-function showTime(){clock.textContent=pad(Math.floor(secs/60))+':'+pad(secs%60)}function start(){if(intv)return;intv=setInterval(()=>{secs--;showTime();if(secs<=0){clearInterval(intv);intv=null;secs=300;alert('🎉 Bloque terminado. Descansá 5 minutos.');showTime()}},1000)}function reset(){clearInterval(intv);intv=null;secs=1200;showTime()}render();
-</script></body></html>
+
+const KEY='miDiaTdah21';
+
+let tasks=JSON.parse(
+localStorage.getItem(KEY)||'[]'
+);
+
+let editId=null;
+
+let view=new Date();
+
+let selected=iso(new Date());
+
+let secs=1200;
+
+let intv=null;
+
+
+const pad=n=>
+String(n).padStart(2,'0');
+
+
+function iso(d){
+
+return d.getFullYear()+
+'-'+
+pad(d.getMonth()+1)+
+'-'+
+pad(d.getDate());
+
+}
+
+
+function today(){
+
+return iso(new Date());
+
+}
+
+
+headDate.textContent=
+new Intl.DateTimeFormat(
+'es-AR',
+{
+weekday:'long',
+day:'numeric',
+month:'long',
+year:'numeric'
+}
+).format(new Date());
+
+
+dt.value=today();
+
+
+function save(){
+
+localStorage.setItem(
+KEY,
+JSON.stringify(tasks)
+);
+
+render();
+
+}
+
+
+function add(){
+
+let text=txt.value.trim();
+
+if(!text)return;
+
+tasks.push({
+
+id:Date.now(),
+
+text:text,
+
+p:+pri.value,
+
+date:dt.value||today(),
+
+time:'',
+
+rem:0,
+
+done:false,
+
+created:today(),
+
+res:0
+
+});
+
+txt.value='';
+
+save();
+
+}
+
+
+function toggle(id){
+
+let t=tasks.find(
+x=>x.id==id
+);
+
+if(!t)return;
+
+t.done=!t.done;
+
+save();
+
+}
+
+
+function del(id){
+
+if(
+confirm('¿Eliminar tarea?')
+){
+
+tasks=tasks.filter(
+x=>x.id!=id
+);
+
+save();
+
+}
+
+}
+
+
+function edit(id){
+
+let t=tasks.find(
+x=>x.id==id
+);
+
+if(!t)return;
+
+editId=id;
+
+etxt.value=t.text;
+
+epri.value=t.p;
+
+edt.value=t.date;
+
+etime.value=t.time||'';
+
+erem.value=t.rem||0;
+
+modal.classList.add('open');
+
+}
+
+
+function closeEdit(){
+
+modal.classList.remove('open');
+
+editId=null;
+
+}
+
+
+function saveEdit(){
+
+let t=tasks.find(
+x=>x.id==editId
+);
+
+if(!t)return;
+
+let old=t.date;
+
+t.text=
+etxt.value.trim()||t.text;
+
+t.p=+epri.value;
+
+t.date=edt.value;
+
+t.time=etime.value;
+
+t.rem=+erem.value;
+
+if(old!==t.date){
+
+t.res=(t.res||0)+1;
+
+}
+
+closeEdit();
+
+save();
+
+}
+
+
+function item(t,drag=true){
+
+let overdue=
+!t.done &&
+t.date<today();
+
+return `
+
+<div
+class="task"
+draggable="${drag}"
+ondragstart="
+event.dataTransfer.setData(
+'text/plain',
+'${t.id}'
+)
+">
+
+<input
+type="checkbox"
+${t.done?'checked':''}
+onchange="toggle(${t.id})"
+>
+
+<div
+class="${t.done?'done':''}"
+>
+
+<b>
+${['','🔴','🟡','🟢'][t.p]}
+${esc(t.text)}
+</b>
+
+<div class="meta">
+
+${overdue?'⚠️ Vencida · ':''}
+
+📅 ${fmt(t.date)}
+
+${t.time?' · ⏰ '+t.time:''}
+
+${t.rem?' · 🔔 '+t.rem+' min':''}
+
+</div>
+
+</div>
+
+<div>
+
+<button
+class="secondary small"
+onclick="edit(${t.id})"
+>
+Editar
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+function esc(s){
+
+return s.replace(
+/[&<>"']/g,
+c=>({
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#39;'
+}[c])
+);
+
+}
+
+
+function fmt(s){
+
+return new Date(
+s+'T00:00:00'
+).toLocaleDateString(
+'es-AR',
+{
+day:'2-digit',
+month:'2-digit'
+}
+);
+
+}
+
+
+function render(){
+
+let d=today();
+
+let tl=tasks
+.filter(
+t=>!t.done&&t.date===d
+)
+.sort(
+(a,b)=>a.p-b.p
+);
+
+
+todayList.innerHTML=
+tl.map(item).join('')||
+'<p class="muted">Nada programado para hoy.</p>';
+
+
+next.innerHTML=
+tasks
+.filter(
+t=>!t.done&&t.date>d
+)
+.sort(
+(a,b)=>a.date.localeCompare(b.date)
+)
+.slice(0,6)
+.map(item)
+.join('')||
+'<p class="muted">No hay tareas próximas.</p>';
+
+
+ov.textContent=
+tasks.filter(
+t=>!t.done&&t.date<d
+).length;
+
+
+td.textContent=
+tasks.filter(
+t=>!t.done&&t.date===d
+).length;
+
+
+up.textContent=
+tasks.filter(
+t=>!t.done&&t.date>d
+).length;
+
+
+co.textContent=
+tasks.filter(
+t=>t.done
+).length;
+
+
+renderCal();
+
+renderWeek();
+
+
+all.innerHTML=
+tasks
+.slice()
+.sort(
+(a,b)=>a.date.localeCompare(b.date)
+)
+.map(item)
+.join('')||
+'<p class="muted">No hay tareas.</p>';
+
+}
+
+
+function renderCal(){
+
+let y=view.getFullYear();
+
+let m=view.getMonth();
+
+monthTitle.textContent=
+new Intl.DateTimeFormat(
+'es-AR',
+{
+month:'long',
+year:'numeric'
+}
+).format(view);
+
+
+let first=
+new Date(y,m,1);
+
+let start=
+(first.getDay()+6)%7;
+
+let days=
+new Date(y,m+1,0).getDate();
+
+let prev=
+new Date(y,m,0).getDate();
+
+
+let h=[
+'L','M','X','J','V','S','D'
+]
+.map(
+x=>`<div class="dow">${x}</div>`
+)
+.join('');
+
+
+for(
+let i=0;
+i<start;
+i++
+){
+
+h+=`
+
+<div class="cell mutedday">
+
+<span class="num">
+${prev-start+i+1}
+</span>
+
+</div>
+
+`;
+
+}
+
+
+for(
+let day=1;
+day<=days;
+day++
+){
+
+let d=
+iso(
+new Date(y,m,day)
+);
+
+let arr=
+tasks.filter(
+t=>t.date===d
+);
+
+let cl=
+(d===selected?' sel':'')+
+(d===today()?' today':'');
+
+
+h+=`
+
+<div
+class="cell${cl}"
+onclick="selectDay('${d}')"
+ondragover="
+event.preventDefault();
+this.classList.add('drop')
+"
+ondragleave="
+this.classList.remove('drop')
+"
+ondrop="
+dropTask(event,'${d}');
+this.classList.remove('drop')
+"
+>
+
+<span class="num">
+${day}
+</span>
+
+${arr
+.slice(0,3)
+.map(
+t=>`
+<span class="dot">
+${t.done?'✅':'•'}
+${esc(t.text)}
+</span>
+`
+)
+.join('')}
+
+</div>
+
+`;
+
+}
+
+
+cal.innerHTML=h;
+
+
+selectedTitle.textContent=
+new Date(
+selected+'T00:00:00'
+)
+.toLocaleDateString(
+'es-AR',
+{
+weekday:'long',
+day:'numeric',
+month:'long'
+}
+);
+
+
+selectedList.innerHTML=
+tasks
+.filter(
+t=>t.date===selected
+)
+.sort(
+(a,b)=>a.p-b.p
+)
+.map(item)
+.join('')||
+'<p class="muted">No hay tareas para esta fecha.</p>';
+
+}
+
+
+function selectDay(d){
+
+selected=d;
+
+renderCal();
+
+}
+
+
+function changeMonth(n){
+
+view.setMonth(
+view.getMonth()+n
+);
+
+renderCal();
+
+}
+
+
+function dropTask(e,d){
+
+let id=
+e.dataTransfer.getData(
+'text/plain'
+);
+
+let t=
+tasks.find(
+x=>x.id==id
+);
+
+if(
+t &&
+t.date!==d
+){
+
+t.date=d;
+
+t.res=(t.res||0)+1;
+
+save();
+
+selected=d;
+
+view=
+new Date(
+d+'T00:00:00'
+);
+
+}
+
+}
+
+
+function startWeek(){
+
+let d=new Date();
+
+d.setHours(0,0,0,0);
+
+d.setDate(
+d.getDate()-
+((d.getDay()+6)%7)
+);
+
+return d;
+
+}
+
+
+function renderWeek(){
+
+let s=startWeek();
+
+let ds=[];
+
+
+for(
+let i=0;
+i<7;
+i++
+){
+
+let d=new Date(s);
+
+d.setDate(
+s.getDate()+i
+);
+
+ds.push(
+iso(d)
+);
+
+}
+
+
+let tw=
+tasks.filter(
+t=>ds.includes(t.date)
+);
+
+
+wc.textContent=
+tasks.filter(
+t=>t.created &&
+ds.includes(t.created)
+).length;
+
+
+wd.textContent=
+tw.filter(
+t=>t.done
+).length;
+
+
+wp.textContent=
+tw.filter(
+t=>!t.done
+).length;
+
+
+wr.textContent=
+tw.reduce(
+(n,t)=>n+(t.res||0),
+0
+);
+
+
+weekLabel.textContent=
+'Del '+
+fmt(ds[0])+
+' al '+
+fmt(ds[6]);
+
+
+wg.innerHTML=
+ds.map(
+d=>{
+
+let a=
+tw.filter(
+t=>t.date===d
+);
+
+let z=
+a.filter(
+t=>t.done
+).length;
+
+let p=
+a.length?
+z/a.length*100:
+0;
+
+return `
+
+<div class="day">
+
+<b>
+${new Date(
+d+'T00:00:00'
+).toLocaleDateString(
+'es-AR',
+{
+weekday:'short',
+day:'2-digit'
+}
+)}
+</b>
+
+<div class="bar">
+
+<i style="width:${p}%"></i>
+
+</div>
+
+<small>
+${z}/${a.length} hechas
+</small>
+
+</div>
+
+`;
+
+}
+).join('');
+
+
+wdetail.innerHTML=
+tw.map(item).join('')||
+'<p class="muted">No hay tareas esta semana.</p>';
+
+}
+
+
+function tab(id,b){
+
+document
+.querySelectorAll('.page')
+.forEach(
+x=>x.classList.remove('on')
+);
+
+document
+.getElementById(id)
+.classList.add('on');
+
+
+document
+.querySelectorAll('nav button')
+.forEach(
+x=>x.classList.remove('on')
+);
+
+b.classList.add('on');
+
+window.scrollTo(0,0);
+
+}
+
+
+function showTime(){
+
+clock.textContent=
+pad(Math.floor(secs/60))+
+':'+
+pad(secs%60);
+
+}
+
+
+function start(){
+
+if(intv)return;
+
+intv=setInterval(
+
+()=>{
+
+secs--;
+
+showTime();
+
+if(secs<=0){
+
+clearInterval(intv);
+
+intv=null;
+
+secs=300;
+
+alert(
+'🎉 Bloque terminado. Descansá 5 minutos.'
+);
+
+showTime();
+
+}
+
+},
+
+1000
+
+);
+
+}
+
+
+function reset(){
+
+clearInterval(intv);
+
+intv=null;
+
+secs=1200;
+
+showTime();
+
+}
+
+
+render();
+
+showTime();
+
+</script>
+
+</body>
+</html>
