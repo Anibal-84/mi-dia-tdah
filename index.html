@@ -177,7 +177,7 @@ button{
 .small{padding:7px 9px;font-size:12px}
 .add{
   display:grid;
-  grid-template-columns:minmax(220px,1fr) 145px 145px 125px auto;
+  grid-template-columns:minmax(200px,1fr) 135px 135px 115px 135px auto;
   gap:9px;
   margin-top:13px;
 }
@@ -355,6 +355,13 @@ input:focus,select:focus{
             </select>
             <input id="dt" type="date">
             <input id="tm" type="time" value="08:00">
+            <select id="rem">
+              <option value="0">🔕 Sin aviso</option>
+              <option value="5">🔔 5 min antes</option>
+              <option value="15">🔔 15 min antes</option>
+              <option value="30">🔔 30 min antes</option>
+              <option value="60">🔔 1 hora antes</option>
+            </select>
             <button class="primary" onclick="add()">Agregar</button>
           </div>
           <p class="muted">Podés cambiar fecha y hora después desde “Editar” o arrastrando la tarea en el calendario.</p>
@@ -501,21 +508,46 @@ $('headDate').textContent=new Intl.DateTimeFormat('es-AR',{weekday:'long',day:'n
 $('dt').value=today();
 
 function add(){
-  const text=$('txt').value.trim();
-  if(!text)return;
-  tasks.push({
-    id:Date.now(),
-    text,
-    p:+$('pri').value,
-    date:$('dt').value||today(),
-    time:$('tm').value||'',
-    rem:0,
-    done:false,
-    created:today(),
-    res:0
-  });
-  $('txt').value='';
-  save();
+  try{
+    const text=$('txt').value.trim();
+    const date=$('dt').value||today();
+    const time=$('tm').value||'';
+    const p=+$('pri').value;
+    const rem=+$('rem').value||0;
+
+    if(!text){
+      alert('Escribí primero qué tenés que hacer.');
+      $('txt').focus();
+      return;
+    }
+
+    const task={
+      id:Date.now(),
+      text:text,
+      p:p,
+      date:date,
+      time:time,
+      rem:rem,
+      done:false,
+      created:today(),
+      res:0
+    };
+
+    tasks.push(task);
+    save();
+
+    $('txt').value='';
+    $('tm').value='08:00';
+    $('rem').value='0';
+
+    selected=task.date;
+    view=new Date(task.date+'T00:00:00');
+    render();
+
+  }catch(err){
+    console.error(err);
+    alert('No pude guardar la tarea. Probemos nuevamente.');
+  }
 }
 
 function toggle(id){
@@ -704,7 +736,7 @@ async function enableNotifications(){
   if(!('Notification' in window)){ alert('Este navegador no permite notificaciones.'); return; }
   if(Notification.permission==='granted'){ alert('🔔 Los avisos ya están activados.'); return; }
   const permission=await Notification.requestPermission();
-  if(permission==='granted'){ alert('✅ Avisos activados. La app puede avisarte mientras esté abierta.'); checkReminders(); }
+  if(permission==='granted'){ alert('✅ Avisos activados. Ahora podés crear tareas con hora y recordatorio.'); checkReminders(); }
   else alert('Los avisos no fueron habilitados.');
 }
 
