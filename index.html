@@ -104,6 +104,32 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .wbar{height:7px;background:var(--line);border-radius:7px;overflow:hidden;margin:7px 0}
 .wbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:7px}
 
+/* salud mental */
+.salud-wrap{display:flex;align-items:center;gap:28px;flex-wrap:wrap;padding:8px 0}
+.ring-wrap{position:relative;width:140px;height:140px;flex-shrink:0}
+.ring-wrap svg{width:140px;height:140px}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring-pct{font-size:30px;font-weight:900;line-height:1}
+.ring-label{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:.5px}
+.salud-info{flex:1;min-width:160px}
+.salud-title{font-size:22px;font-weight:900;margin:0 0 6px}
+.salud-sub{font-size:13px;color:var(--muted);line-height:1.5}
+.salud-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-top:8px}
+.badge-green{background:#d4f5df;color:#1a6b35}
+.badge-yellow{background:#fff4cc;color:#8a6000}
+.badge-red{background:#fde0e0;color:#a81020}
+:root[data-theme="dark"] .badge-green,:root:not([data-theme="light"]) .badge-green{background:#1a3d24;color:#6ddb8f}
+:root[data-theme="dark"] .badge-yellow,:root:not([data-theme="light"]) .badge-yellow{background:#3a2e00;color:#f0c040}
+:root[data-theme="dark"] .badge-red,:root:not([data-theme="light"]) .badge-red{background:#3d0e10;color:#f07070}
+
+/* historial semanal */
+.hist-chart{display:flex;align-items:flex-end;gap:6px;height:90px;margin-top:8px}
+.hist-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px}
+.hist-bar-wrap{flex:1;width:100%;display:flex;align-items:flex-end;position:relative}
+.hist-bar{width:100%;border-radius:5px 5px 0 0;min-height:3px;transition:height .4s ease}
+.hist-lbl{font-size:9px;color:var(--muted);text-align:center;white-space:nowrap}
+.hist-pct{font-size:9px;font-weight:700;color:var(--muted)}
+
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;z-index:30}
 .modal.open{display:flex}
 .sheet{width:100%;background:var(--card);border-radius:22px 22px 0 0;padding:22px;box-shadow:0 -12px 35px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto}
@@ -242,6 +268,32 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 
   <!-- SEMANA -->
   <section id="week" class="page">
+    <div class="card">
+      <div class="sec-title">🧠 Salud Mental</div>
+      <div class="salud-wrap">
+        <div class="ring-wrap">
+          <svg viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="56" fill="none" stroke="var(--line)" stroke-width="12"/>
+            <circle id="ringArc" cx="70" cy="70" r="56" fill="none" stroke="#2fb455" stroke-width="12"
+              stroke-linecap="round" stroke-dasharray="352" stroke-dashoffset="352"
+              transform="rotate(-90 70 70)" style="transition:stroke-dashoffset .6s ease,stroke .4s"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-pct" id="ringPct">0%</div>
+            <div class="ring-label">esta semana</div>
+          </div>
+        </div>
+        <div class="salud-info">
+          <div class="salud-title" id="saludTitle">Empezando</div>
+          <div class="salud-sub" id="saludSub">Cargá tus tareas de la semana y empezá a completarlas para ver tu progreso.</div>
+          <div class="salud-badge badge-yellow" id="saludBadge">Sin datos</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-title">📈 Historial (últimas 8 semanas)</div>
+      <div class="hist-chart" id="histChart"></div>
+    </div>
     <div class="card">
       <div class="sec-title">📊 Resumen semanal</div>
       <p class="hint" id="wkLabel" style="margin:0 0 12px"></p>
@@ -668,17 +720,96 @@ function renderCal() {
 
 function selCalDay(d) { selDay = d; renderCal(); }
 
-// ── Render: Semana ────────────────────────────────────────────────────────────
-function renderWeek() {
+// ── Helpers semana ────────────────────────────────────────────────────────────
+function weekDays(offsetWeeks) {
+  // offsetWeeks: 0 = semana actual, -1 = semana pasada, etc.
   var s = new Date();
   s.setHours(0, 0, 0, 0);
-  s.setDate(s.getDate() - ((s.getDay() + 6) % 7));
+  s.setDate(s.getDate() - ((s.getDay() + 6) % 7) + offsetWeeks * 7);
   var ds = [];
   for (var i = 0; i < 7; i++) {
     var dd = new Date(s);
     dd.setDate(s.getDate() + i);
     ds.push(iso(dd));
   }
+  return ds;
+}
+function weekStats(ds) {
+  var total = 0, done = 0;
+  for (var i = 0; i < tasks.length; i++) {
+    var t = tasks[i];
+    for (var j = 0; j < ds.length; j++) {
+      if (t.date === ds[j]) { total++; if (t.done) done++; break; }
+    }
+  }
+  return {total: total, done: done, pct: total ? Math.round(done / total * 100) : -1};
+}
+function saludInfo(pct) {
+  if (pct < 0)  return {title:'Sin tareas', sub:'No hay tareas esta semana todavía.', badge:'Sin datos', cls:'badge-yellow', color:'#9a9488'};
+  if (pct >= 80) return {title:'Excelente semana! 🚀', sub:'Estás cumpliendo casi todo. ¡Eso es constancia real!', badge:'Salud óptima', cls:'badge-green', color:'#2fb455'};
+  if (pct >= 60) return {title:'Muy buen ritmo 👍', sub:'Más de la mitad completado. Seguí así y terminás fuerte.', badge:'Buen progreso', cls:'badge-green', color:'#2fb455'};
+  if (pct >= 40) return {title:'Progreso moderado ⚡', sub:'Vas por la mitad. Podés mejorar cerrando las pendientes.', badge:'En proceso', cls:'badge-yellow', color:'#ffbd18'};
+  if (pct >= 20) return {title:'Semana difícil 😤', sub:'Hay bastante por hacer todavía. De a poco, sin presión.', badge:'Necesita atención', cls:'badge-red', color:'#e51e35'};
+  return {title:'Empezando 🌱', sub:'Recién arrancando. ¡Cada tarea completada cuenta!', badge:'Arrancando', cls:'badge-red', color:'#e51e35'};
+}
+
+// ── Render: Semana ────────────────────────────────────────────────────────────
+function renderWeek() {
+  var ds = weekDays(0);
+
+  // ── Salud mental (anillo) ─────────────────────────────────────────────────
+  var st = weekStats(ds);
+  var pct = st.pct < 0 ? 0 : st.pct;
+  var info = saludInfo(st.pct);
+  var circumference = 2 * Math.PI * 56; // r=56
+  var offset = circumference - (pct / 100) * circumference;
+  var arc = g('ringArc');
+  if (arc) {
+    arc.style.strokeDashoffset = offset;
+    arc.style.stroke = info.color;
+    arc.setAttribute('stroke-dasharray', circumference);
+  }
+  var rp = g('ringPct');
+  if (rp) rp.textContent = st.pct < 0 ? '—' : pct + '%';
+  if (rp) rp.style.color = info.color;
+  var st2 = g('saludTitle'); if (st2) st2.textContent = info.title;
+  var ss = g('saludSub');   if (ss) ss.textContent = info.sub;
+  var sb = g('saludBadge');
+  if (sb) { sb.textContent = info.badge; sb.className = 'salud-badge ' + info.cls; }
+
+  // ── Historial 8 semanas ───────────────────────────────────────────────────
+  var histH = '';
+  var maxPct = 0;
+  var weeks = [];
+  for (var w = -7; w <= 0; w++) {
+    var wds = weekDays(w);
+    var ws = weekStats(wds);
+    var p = ws.pct < 0 ? 0 : ws.pct;
+    if (p > maxPct) maxPct = p;
+    var lbl = '';
+    try { lbl = new Date(wds[0] + 'T00:00:00').toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit'}); }
+    catch(e) { lbl = wds[0].slice(5); }
+    weeks.push({p: p, lbl: lbl, total: ws.total, done: ws.done, pct: ws.pct, isCurrent: w === 0});
+  }
+  var scale = maxPct > 0 ? maxPct : 100;
+  for (var hi = 0; hi < weeks.length; hi++) {
+    var wk = weeks[hi];
+    var barH = wk.total === 0 ? 3 : Math.max(5, Math.round(wk.p / scale * 76));
+    var barColor = wk.isCurrent ? info.color
+      : wk.p >= 70 ? '#2fb455'
+      : wk.p >= 40 ? '#ffbd18'
+      : wk.total === 0 ? 'var(--line)'
+      : '#e51e35';
+    var opacity = wk.isCurrent ? '1' : '0.7';
+    histH += '<div class="hist-col">'
+      + '<div class="hist-pct">' + (wk.total === 0 ? '' : wk.p + '%') + '</div>'
+      + '<div class="hist-bar-wrap"><div class="hist-bar" style="height:' + barH + 'px;background:' + barColor + ';opacity:' + opacity + '"></div></div>'
+      + '<div class="hist-lbl">' + wk.lbl + (wk.isCurrent ? '<br>★' : '') + '</div>'
+      + '</div>';
+  }
+  var hc = g('histChart'); if (hc) hc.innerHTML = histH;
+
+  // ── Stats numéricos ───────────────────────────────────────────────────────
   var tw = [];
   for (var j = 0; j < tasks.length; j++) {
     for (var k = 0; k < ds.length; k++) { if (tasks[j].date === ds[k]) { tw.push(tasks[j]); break; } }
@@ -700,17 +831,18 @@ function renderWeek() {
   g('wRe').textContent = re;
   try { g('wkLabel').textContent = 'Del ' + fmt(ds[0]) + ' al ' + fmt(ds[6]); } catch(e) {}
 
+  // ── Actividad diaria ──────────────────────────────────────────────────────
   var gh = '';
   for (var gi = 0; gi < ds.length; gi++) {
     var da = ds[gi];
     var a = [], z = 0;
     for (var ai = 0; ai < tw.length; ai++) { if (tw[ai].date === da) { a.push(tw[ai]); if (tw[ai].done) z++; } }
-    var pct = a.length ? z / a.length * 100 : 0;
-    var lbl = '';
-    try { lbl = new Date(da + 'T00:00:00').toLocaleDateString('es-AR', {weekday:'short', day:'2-digit'}); }
-    catch(e) { lbl = da; }
-    gh += '<div class="wkday"><b style="font-size:13px">' + lbl + '</b>'
-        + '<div class="wbar"><i style="width:' + pct + '%"></i></div>'
+    var dpct = a.length ? z / a.length * 100 : 0;
+    var dlbl = '';
+    try { dlbl = new Date(da + 'T00:00:00').toLocaleDateString('es-AR', {weekday:'short', day:'2-digit'}); }
+    catch(e) { dlbl = da; }
+    gh += '<div class="wkday"><b style="font-size:13px">' + dlbl + '</b>'
+        + '<div class="wbar"><i style="width:' + dpct + '%"></i></div>'
         + '<small style="color:var(--muted);font-size:12px">' + z + '/' + a.length + ' hechas</small></div>';
   }
   g('wkGrid').innerHTML = gh;
