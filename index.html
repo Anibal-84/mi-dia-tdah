@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BARDO">
+<link id="appleIcon" rel="apple-touch-icon" sizes="192x192">
+<link id="favicon" rel="icon" type="image/png">
 <title>Mi Día · BARDO</title>
 <style>
 :root{
@@ -179,7 +184,10 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
       <button data-tab="week">📊 Semana</button>
       <button data-tab="tasks">📝 Tareas</button>
     </nav>
-    <div class="datelabel" id="hdate"></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="datelabel" id="hdate"></div>
+      <button id="notifBtn" class="btn-sec btn-sm" style="white-space:nowrap" title="Activar alertas">🔔</button>
+    </div>
   </div>
 
   <!-- HOY -->
@@ -366,6 +374,101 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 <div class="toasts" id="toasts"></div>
 
 <script>
+// ── Ícono cerveza BARDO ───────────────────────────────────────────────────────
+(function() {
+  try {
+    var c = document.createElement('canvas');
+    c.width = 192; c.height = 192;
+    var ctx = c.getContext('2d');
+
+    // Fondo oscuro con gradiente
+    var bg = ctx.createLinearGradient(0, 0, 192, 192);
+    bg.addColorStop(0, '#1a1408');
+    bg.addColorStop(1, '#2a2010');
+    ctx.fillStyle = bg;
+    ctx.roundRect ? ctx.roundRect(0, 0, 192, 192, 36) : ctx.fillRect(0, 0, 192, 192);
+    ctx.fill();
+
+    // Vaso (forma trapezoidal)
+    ctx.beginPath();
+    ctx.moveTo(52, 48);   // top-left
+    ctx.lineTo(140, 48);  // top-right
+    ctx.lineTo(128, 158); // bottom-right
+    ctx.lineTo(64, 158);  // bottom-left
+    ctx.closePath();
+
+    // Relleno cerveza (ámbar)
+    var beer = ctx.createLinearGradient(52, 60, 140, 60);
+    beer.addColorStop(0, '#c87d10');
+    beer.addColorStop(0.5, '#e8a020');
+    beer.addColorStop(1, '#c87d10');
+    ctx.fillStyle = beer;
+    ctx.fill();
+
+    // Espuma (parte superior del vaso)
+    ctx.beginPath();
+    ctx.moveTo(52, 48);
+    ctx.lineTo(140, 48);
+    ctx.lineTo(138, 72);
+    ctx.lineTo(54, 72);
+    ctx.closePath();
+    ctx.fillStyle = '#f5f0e8';
+    ctx.fill();
+
+    // Burbujas de espuma redondeadas
+    var foamBubbles = [
+      {x:70, y:56, r:12}, {x:96, y:54, r:14}, {x:122, y:56, r:11},
+      {x:83, y:62, r:10}, {x:110, y:63, r:9}, {x:60, y:63, r:8}
+    ];
+    ctx.fillStyle = '#fff';
+    for (var i = 0; i < foamBubbles.length; i++) {
+      ctx.beginPath();
+      ctx.arc(foamBubbles[i].x, foamBubbles[i].y, foamBubbles[i].r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Borde del vaso
+    ctx.beginPath();
+    ctx.moveTo(52, 48);
+    ctx.lineTo(140, 48);
+    ctx.lineTo(128, 158);
+    ctx.lineTo(64, 158);
+    ctx.closePath();
+    ctx.strokeStyle = '#c99616';
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+
+    // Asa del vaso
+    ctx.beginPath();
+    ctx.arc(148, 100, 22, -Math.PI * 0.55, Math.PI * 0.55);
+    ctx.strokeStyle = '#c99616';
+    ctx.lineWidth = 7;
+    ctx.stroke();
+
+    // Brillo en el vaso
+    ctx.beginPath();
+    ctx.moveTo(68, 78);
+    ctx.quadraticCurveTo(72, 120, 70, 148);
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Texto BARDO
+    ctx.fillStyle = '#c99616';
+    ctx.font = 'bold 20px Arial';
+    ctx.textAlign = 'center';
+    ctx.letterSpacing = '3px';
+    ctx.fillText('BARDO', 96, 182);
+
+    var dataUrl = c.toDataURL('image/png');
+    var ai = document.getElementById('appleIcon');
+    var fv = document.getElementById('favicon');
+    if (ai) ai.href = dataUrl;
+    if (fv) fv.href = dataUrl;
+  } catch(e) {}
+})();
+
 // ── Audio ─────────────────────────────────────────────────────────────────────
 var audioCtx = null;
 function getAudio() {
@@ -418,6 +521,32 @@ function soundReminder() {
   playNote(660, 0.12, 'square', 0.40, 0.15); // E5
 }
 
+// ── Notificaciones nativas ────────────────────────────────────────────────────
+var notifPermission = 'default';
+function pedirPermiso() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') { notifPermission = 'granted'; return; }
+  if (Notification.permission !== 'denied') {
+    Notification.requestPermission(function(result) {
+      notifPermission = result;
+      if (result === 'granted') toast('Notificaciones activadas ✓', 'ok');
+    });
+  }
+}
+function notificar(titulo, cuerpo, icono) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+  try {
+    new Notification(titulo, {
+      body: cuerpo || '',
+      icon: icono || '',
+      badge: icono || '',
+      tag: titulo,
+      renotify: true
+    });
+  } catch(e) {}
+}
+
 // Chequeo de recordatorios cada 30 segundos
 var lastRemKey = '';
 setInterval(function() {
@@ -432,6 +561,7 @@ setInterval(function() {
     if (!t.done && t.date === nd && t.time === nt) {
       soundReminder();
       toast('⏰ ' + t.text, 'ok');
+      notificar('⏰ Tarea: ' + t.text, '📅 ' + fmt(t.date) + (t.time ? ' · ' + t.time : ''));
     }
   }
 }, 30000);
@@ -1014,9 +1144,11 @@ g('timerBtn').addEventListener('click', function() {
         if (tPhase === 'work') {
           tPhase = 'rest'; tSecs = 300;
           toast('Bloque terminado! Descansa 5 minutos.', 'ok');
+          notificar('🎉 Bloque de enfoque terminado', 'Descansá 5 minutos, te lo ganaste!');
         } else {
           tPhase = 'work'; tSecs = 1200;
           toast('Descanso terminado. A trabajar!', 'ok');
+          notificar('☕ Descanso terminado', 'Nuevo bloque de 20 minutos. A trabajar!');
         }
         updClk();
       }
@@ -1040,6 +1172,29 @@ g('cancelEditBtn').addEventListener('click', closeModal);
 g('etxt').addEventListener('keydown', function(e) { if (e.key === 'Enter') saveEdit(); });
 g('modal').addEventListener('click', function(e) { if (e.target === g('modal')) closeModal(); });
 
+// ── Botón notificaciones ──────────────────────────────────────────────────────
+function actualizarBtnNotif() {
+  var btn = g('notifBtn');
+  if (!btn) return;
+  if (!('Notification' in window)) { btn.style.display = 'none'; return; }
+  if (Notification.permission === 'granted') {
+    btn.textContent = '🔔 Alertas ON';
+    btn.style.background = '#d4f5df';
+    btn.style.color = '#1a6b35';
+    btn.style.borderColor = '#2fb455';
+  } else if (Notification.permission === 'denied') {
+    btn.textContent = '🔕 Bloqueado';
+    btn.style.opacity = '0.5';
+  } else {
+    btn.textContent = '🔔 Activar alertas';
+  }
+}
+g('notifBtn').addEventListener('click', function() {
+  getAudio(); // desbloquear audio también
+  pedirPermiso();
+  setTimeout(actualizarBtnNotif, 500);
+});
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 try { g('dt').value = today(); } catch(e) {}
 try {
@@ -1047,6 +1202,9 @@ try {
 } catch(e) {}
 try { renderHome(); } catch(e) { console.error('init home', e); }
 updClk();
+actualizarBtnNotif();
+// Pedir permiso automáticamente si ya fue concedido antes
+if ('Notification' in window && Notification.permission === 'granted') notifPermission = 'granted';
 </script>
 </body>
 </html>
