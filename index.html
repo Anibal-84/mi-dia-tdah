@@ -366,6 +366,76 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 <div class="toasts" id="toasts"></div>
 
 <script>
+// ── Audio ─────────────────────────────────────────────────────────────────────
+var audioCtx = null;
+function getAudio() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch(e) {}
+  return audioCtx;
+}
+// Desbloquear audio en iOS con primer toque
+document.addEventListener('touchstart', function() { getAudio(); }, {once: true, passive: true});
+document.addEventListener('click', function() { getAudio(); }, {once: true});
+
+function playNote(freq, dur, type, delay, vol) {
+  var ctx = getAudio();
+  if (!ctx) return;
+  try {
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    var t = ctx.currentTime + (delay || 0);
+    gain.gain.setValueAtTime(vol || 0.3, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.start(t);
+    osc.stop(t + dur + 0.05);
+  } catch(e) {}
+}
+
+// 🎵 Timer terminado — acorde ascendente triunfal
+function soundTimer() {
+  playNote(523, 0.25, 'sine', 0.00, 0.35);   // C5
+  playNote(659, 0.25, 'sine', 0.22, 0.35);   // E5
+  playNote(784, 0.40, 'sine', 0.44, 0.35);   // G5
+  playNote(1047,0.50, 'sine', 0.66, 0.30);   // C6
+}
+
+// ✅ Tarea completada — ding suave doble
+function soundDone() {
+  playNote(880,  0.15, 'sine', 0.00, 0.25);  // A5
+  playNote(1047, 0.30, 'sine', 0.12, 0.20);  // C6
+}
+
+// ⏰ Recordatorio de tarea — doble beep de alerta
+function soundReminder() {
+  playNote(660, 0.12, 'square', 0.00, 0.18); // E5
+  playNote(880, 0.12, 'square', 0.18, 0.18); // A5
+  playNote(660, 0.12, 'square', 0.40, 0.15); // E5
+}
+
+// Chequeo de recordatorios cada 30 segundos
+var lastRemKey = '';
+setInterval(function() {
+  var now = new Date();
+  var nd = iso(now);
+  var nt = pad(now.getHours()) + ':' + pad(now.getMinutes());
+  var key = nd + 'T' + nt;
+  if (key === lastRemKey) return;
+  lastRemKey = key;
+  for (var i = 0; i < tasks.length; i++) {
+    var t = tasks[i];
+    if (!t.done && t.date === nd && t.time === nt) {
+      soundReminder();
+      toast('⏰ ' + t.text, 'ok');
+    }
+  }
+}, 30000);
+
 // ── Storage ───────────────────────────────────────────────────────────────────
 var STORE = 'miDiaTdah21';
 var tasks = [];
@@ -476,6 +546,7 @@ function toggleDone(id) {
   for (var i = 0; i < tasks.length; i++) { if (tasks[i].id == id) { t = tasks[i]; break; } }
   if (!t) return;
   t.done = !t.done;
+  if (t.done) soundDone();
   if (save()) renderCurrent();
   else t.done = !t.done;
 }
@@ -939,6 +1010,7 @@ g('timerBtn').addEventListener('click', function() {
       if (tSecs <= 0) {
         clearInterval(tIntv); tIntv = null; tRunning = false;
         g('timerBtn').textContent = '▶ Empezar';
+        soundTimer();
         if (tPhase === 'work') {
           tPhase = 'rest'; tSecs = 300;
           toast('Bloque terminado! Descansa 5 minutos.', 'ok');
